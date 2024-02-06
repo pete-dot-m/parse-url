@@ -1,3 +1,3 @@
-module github.com/pete-dot-m/parse-url
+module pete-dot-m/url
 
 go 1.21.6

@@ -2,6 +2,7 @@ package url
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -11,6 +12,26 @@ type URL struct {
 	Scheme string // https
 	Host   string // foo.com
 	Path   string // go
+}
+
+func (u *URL) Port() string {
+	i := strings.Index(u.Host, ":")
+	if i < 0 {
+		return ""
+	}
+	return u.Host[i+1:]
+}
+
+func (u *URL) Hostname() string {
+	i := strings.Index(u.Host, ":")
+	if i < 0 {
+		return u.Host
+	}
+	return u.Host[:i]
+}
+
+func (u *URL) String() string {
+	return fmt.Sprintf("%s://%s/%s", u.Scheme, u.Host, u.Path)
 }
 
 // Parse parses rawurl into a URL structure
