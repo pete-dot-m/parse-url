@@ -2,6 +2,7 @@ package url
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -11,6 +12,22 @@ type URL struct {
 	Scheme string // https
 	Host   string // foo.com
 	Path   string // go
+}
+
+// Parses rawurl into a URL structure
+func Parse(rawurl string) (*URL, error) {
+	scheme, rest, ok := parseScheme(rawurl)
+	if !ok {
+		return nil, errors.New("missing scheme")
+	}
+
+	host, path := parseHostPath(rest)
+
+	return &URL{
+		Scheme: scheme,
+		Host:   host,
+		Path:   path,
+	}, nil
 }
 
 // Returns the port from the URL, or an empty string
@@ -51,20 +68,26 @@ func (u *URL) String() string {
 	return s.String()
 }
 
-// Parses rawurl into a URL structure
-func Parse(rawurl string) (*URL, error) {
-	i := strings.Index(rawurl, "://")
-	if i < 1 {
-		return nil, errors.New("missing scheme")
+func (u *URL) testString() string {
+	return fmt.Sprintf("scheme=%q, host=%q, path=%q", u.Scheme, u.Host, u.Path)
+}
+
+func parseScheme(rawurl string) (scheme, rest string, ok bool) {
+	return split(rawurl, "://", 1)
+}
+
+func parseHostPath(hostpath string) (host, path string) {
+	host, path, ok := split(hostpath, "/", 0)
+	if !ok {
+		host = hostpath
 	}
-	scheme, rest := rawurl[:i], rawurl[i+3:]
-	host, path := rest, ""
-	if i := strings.Index(rest, "/"); i >= 0 {
-		host, path = rest[:i], rest[i+1:]
+	return host, path
+}
+
+func split(s, sep string, n int) (a, b string, ok bool) {
+	i := strings.Index(s, sep)
+	if i < n {
+		return "", "", false
 	}
-	return &URL{
-		Scheme: scheme,
-		Host:   host,
-		Path:   path,
-	}, nil
+	return s[:i], s[i+len(sep):], true
 }
