@@ -3,7 +3,8 @@ package url_test
 import (
 	"fmt"
 	"log"
-	"pete-dot-m/url"
+
+	"github.com/pete-dot-m/url"
 )
 
 func ExampleURL() {
